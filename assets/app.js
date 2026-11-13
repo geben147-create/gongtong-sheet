@@ -17,7 +17,7 @@ let D=window.D||{};D.accBy={};(D.acc||[]).forEach(a=>D.accBy[a.h]=a);
 const MENU=[
  ['🏠 대시보드','#ffd84d',[['home','한눈에 보기 · 명령어'],['prompts','📋 프롬프트 전체 복사']]],
  ['🖼 인스타 게시물 보드','#3ee6c4',[['b_all','전체 게시물'],['b_toon','인스타툰'],['b_card','카드뉴스'],['b_one','한장형'],['b_reel','릴스·기타 계정']]],
- ['👤 계정 분석','#6aa8ff',[['accs','계정 카드 (전체)'],['cmp_toon','📊 인스타툰 비교'],['cmp_card','📊 카드뉴스·한장형 비교'],['grp_theme','🗂 주제별 묶음'],['grp_target','🎯 타깃별 묶음']]],
+ ['👤 계정 분석','#6aa8ff',[['accs','계정 카드 (전체)'],['cmp_toon','📊 툰 비교'],['cmp_card','📊 카드뉴스·한장형 비교'],['grp_theme','🗂 주제별 묶음'],['grp_target','🎯 타깃별 묶음']]],
  ['📚 SNS 팩 (공통기억)','#b892ff',[['p_toon_an','인스타툰 분석'],['p_toon_mk','인스타툰 제작 (비율·컷)'],['p_card','카드뉴스·캐러셀'],['p_reels','릴스'],['p_thread','스레드'],['plan30','📅 30일 스레드 캘린더'],['p_side','부업강의·수익화'],['p_ebook','전자책'],['p_wadiz','와디즈 카피'],['p_ops','운영일반·계정분석 원문'],['p_yt','유튜브 자동프로그램'],['p_accs','계정 모음표 (팩 원문)']]],
  ['💰 혜민 투자 인스타','#ffa04d',[['hm','전략 대시보드'],['hm_week','📅 주간 7슬롯 기획판']]],
 ];
@@ -35,7 +35,7 @@ function modal(html){$('#mod .in').innerHTML=html;$('#mod').classList.add('on');
 function closeMod(){$('#mod').classList.remove('on')}
 function backAcc(){closeMod();if(location.hash.startsWith('#acc:'))location.hash=window.lastV||'accs'}
 function tools(html){$('#tools').innerHTML=html||''}
-function md(s){try{return window.marked?marked.parse(s||''):'<pre>'+esc(s)+'</pre>'}catch(e){return '<pre>'+esc(s)+'</pre>'}}
+function md(s){try{return window.marked?marked.parse(s||''):'<pre>'+fmtPre(s)+'</pre>'}catch(e){return '<pre>'+fmtPre(s)+'</pre>'}}
 function loadScript(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;s.onerror=r;document.body.appendChild(s)})}
 /* ---------- 라우터 ---------- */
 async function route(){let k=location.hash.slice(1)||'home';if(k.startsWith('acc:')){const h=decodeURIComponent(k.slice(4));if(!$('#view').innerHTML){window.lastV=window.curV='accs';await go('accs')}openAcc(h);return}
@@ -47,12 +47,12 @@ const VIEWS={};
 VIEWS.home=()=>{const A=D.acc||[],P=D.posts||[];const toon=A.filter(a=>a.cat==='인스타툰');
  const topToon=[...toon].sort((a,b)=>(b.followers||0)-(a.followers||0)).slice(0,6);
  const k=(v,l,c)=>'<div class="kpi t-'+c+'"><div class="v">'+v+'</div><div class="k">'+l+'</div></div>';
- let h='<div class="grid g6" style="margin-bottom:8px">'+k(A.length,'벤치마킹 계정','mint')+k(P.length,'ego 수집 게시물 (썸네일·캡션)','blue')+k(toon.length,'인스타툰 계정','green')+k(A.filter(a=>a.cat==='카드뉴스').length,'카드뉴스 계정','purple')+k((D.pack||[]).reduce((s,x)=>s+x.convs.length,0),'SNS 팩 대화 분석','orange')+k((D.pack||[]).reduce((s,x)=>s+x.convs.reduce((t,c)=>t+c.blocks.length,0),0),'📌 복사형 블록·프롬프트','wine')+'</div>';
+ let h='<div class="grid g6" style="margin-bottom:8px">'+k(A.length,'벤치마킹 계정','mint')+k(P.length,'ego 수집 게시물 (썸네일·캡션)','blue')+k(toon.length,'툰 계정','green')+k(A.filter(a=>a.cat==='카드뉴스').length,'카드뉴스 계정','purple')+k((D.pack||[]).reduce((s,x)=>s+x.convs.length,0),'SNS 팩 대화 분석','orange')+k((D.pack||[]).reduce((s,x)=>s+x.convs.reduce((t,c)=>t+c.blocks.length,0),0),'📌 복사형 블록·프롬프트','wine')+'</div>';
  h+='<div class="grid" style="grid-template-columns:1.35fr 1fr 1fr">';
  h+='<div class="sec t-navy"><h2>📋 복사해서 쓸 명령 <small>Hermes/Claude에 그대로 붙여넣기 · ○○만 바꾸기</small></h2>'+(D.cmds||[]).map(c=>'<div class="cmd"><span class="w">'+esc(c[0])+'</span><code>'+esc(c[1])+'</code>'+copyBtn(c[1])+'</div>').join('')+'</div>';
- h+='<div class="sec t-mint"><h2>🏆 인스타툰 팔로워 TOP <small>ego 실측 · '+esc(D.fetched||'')+'</small></h2>'+bars(topToon,a=>a.followers,a=>'<a href="#acc:'+encodeURIComponent(a.h)+'">@'+esc(a.h)+'</a> <span class="muted small">'+esc(a.themeG||'')+'</span>','#3ee6c4')+
+ h+='<div class="sec t-mint"><h2>🏆 툰 팔로워 TOP <small>ego 실측 · '+esc(D.fetched||'')+'</small></h2>'+bars(topToon,a=>a.followers,a=>'<a href="#acc:'+encodeURIComponent(a.h)+'">@'+esc(a.h)+'</a> <span class="muted small">'+esc(a.themeG||'')+'</span>','#3ee6c4')+
   '<h2 style="margin-top:8px">💬 팔로워 대비 반응(평균 좋아요/팔로워) TOP</h2>'+bars([...toon].filter(a=>a.stats&&a.stats.er!=null).sort((a,b)=>b.stats.er-a.stats.er).slice(0,6),a=>a.stats.er,a=>'<a href="#acc:'+encodeURIComponent(a.h)+'">@'+esc(a.h)+'</a>','#ffd84d',pct)+'</div>';
- h+='<div class="sec t-purple"><h2>🧭 바로가기</h2><div class="grid g2">'+[['b_toon','🖼 인스타툰 게시물 보드','썸네일·캡션·좋아요 정렬','mint'],['cmp_toon','📊 인스타툰 비교','팔로워·반응률 · 주제/타깃 묶음','blue'],['grp_theme','🗂 주제별 묶음','경제·직장인·연애·수익화…','green'],['plan30','📅 30일 스레드 캘린더','수정금지 30일 규격 플랜','yellow'],['hm','💰 혜민 투자 인스타','퍼널·5계정·상품·법적경계','orange'],['p_toon_mk','✏️ 인스타툰 제작','비율·컷·프롬프트','purple'],['p_card','🗞 카드뉴스','표지·규격·자동화','wine'],['prompts','📋 프롬프트 전체','📌 블록 검색·복사','navy']].map(x=>'<a class="kpi t-'+x[3]+'" href="#'+x[0]+'" style="text-decoration:none"><div style="font-weight:800;color:#fff">'+x[1]+'</div><div class="k">'+x[2]+'</div></a>').join('')+'</div>'+
+ h+='<div class="sec t-purple"><h2>🧭 바로가기</h2><div class="grid g2">'+[['b_toon','🖼 툰 게시물 보드','썸네일·캡션·좋아요 정렬','mint'],['cmp_toon','📊 툰 비교','팔로워·반응률 · 주제/타깃 묶음','blue'],['grp_theme','🗂 주제별 묶음','경제·직장인·연애·수익화…','green'],['plan30','📅 30일 스레드 캘린더','수정금지 30일 규격 플랜','yellow'],['hm','💰 혜민 투자 인스타','퍼널·5계정·상품·법적경계','orange'],['p_toon_mk','✏️ 인스타툰 제작','비율·컷·프롬프트','purple'],['p_card','🗞 카드뉴스','표지·규격·자동화','wine'],['prompts','📋 프롬프트 전체','📌 블록 검색·복사','navy']].map(x=>'<a class="kpi t-'+x[3]+'" href="#'+x[0]+'" style="text-decoration:none"><div style="font-weight:800;color:#fff">'+x[1]+'</div><div class="k">'+x[2]+'</div></a>').join('')+'</div>'+
   '<div class="note" style="margin-top:6px">⚠ 팩 속 수치(매출·조회수 등)는 과거 GPT 대화 기록값 — <mark class="p">검증 안 됨</mark>. 팔로워·게시물·좋아요는 ego 실측(비로그인 공개값, 수집 시각 표시).</div></div>';
  h+='</div>';$('#view').innerHTML=h};
 function bars(arr,val,label,color,f){const mx=Math.max(...arr.map(val),1);return '<table class="t">'+arr.map(a=>'<tr><td style="width:44%">'+label(a)+'</td><td><div class="bar"><i style="width:'+(val(a)/mx*100)+'%;background:'+color+'"></i></div></td><td class="r nowrap"><b class="n">'+(f||fmtN)(val(a))+'</b></td></tr>').join('')+'</table>'}
@@ -63,7 +63,7 @@ VIEWS.b=(k)=>{const pre={b_all:null,b_toon:['인스타툰'],b_card:['카드뉴�
  const targets=[...new Set((D.acc||[]).filter(a=>!pre||pre.includes(a.cat)).flatMap(a=>a.targets||[]))].sort();
  tools('<span class="lab">열</span><input type="range" id="gc" min="3" max="14" value="'+G.cols+'"><b id="gcn">'+G.cols+'</b>'+
  '<span class="lab">정렬</span><select id="gk"><option value="l">좋아요</option><option value="c">댓글</option><option value="v">릴스 조회</option><option value="er">좋아요/팔로워</option><option value="cr">댓글율(댓글/좋아요)</option><option value="d">최신순</option><option value="f">계정 팔로워</option></select><button id="gd">내림 ▼</button>'+
- (pre&&pre.length==1?'':'<select id="gf"><option value="">전체 형식</option>'+['인스타툰','카드뉴스','한장형','릴스','기타'].map(x=>'<option>'+x+'</option>').join('')+'</select>')+
+ (pre&&pre.length==1?'':'<select id="gf"><option value="">전체 형식</option>'+['인스타툰','카드뉴스','한장형','릴스','기타'].map(x=>'<option value="'+x+'">'+catL(x)+'</option>').join('')+'</select>')+
  '<select id="gt"><option value="">전체 주제</option>'+themes.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>'+
  '<select id="gg"><option value="">전체 타깃</option>'+targets.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>'+
  '<select id="gr"><option value="">전 지역</option>'+Object.entries(REG).map(([a,b])=>'<option value="'+a+'">'+b+'</option>').join('')+'</select>'+
@@ -92,18 +92,18 @@ function renderGal(pre){let arr=(D.posts||[]).filter(p=>{const a=D.accBy[p.a]||{
   const er=a.followers&&p.l!=null?p.l/a.followers:null;
   return '<div class="pc"><span class="tag">'+(i+1)+' '+(REG[a.region]||'').slice(0,4)+'</span><span class="fmt">'+(p.t==='vid'?'🎬':p.t==='car'?'🗂':'🖼')+(p.pin?'📌':'')+'</span><a class="th" href="'+u+'" target="_blank" rel="noopener"><img loading="lazy" src="'+p.img+'" alt=""></a><div class="b">'+
   '<div class="m" title="클릭: 캡션 펼치기">'+(p.v!=null?'<span class="vw">▶'+fmtN(p.v)+'</span>':'')+'<span class="lk">♥'+(p.l==null?'숨김':fmtN(p.l))+'</span><span class="cm">💬'+fmtN(p.c)+'</span>'+(er!=null?'<span class="muted" title="좋아요/팔로워">'+pct(er)+'</span>':'')+'</div>'+
-  '<div class="r1"><span class="ac" data-a="'+esc(p.a)+'" title="클릭: 이 계정만 / Alt+클릭: 계정 상세">@'+esc(p.a)+'</span></div><div class="r1 muted small">'+esc(p.d||'')+' · <span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(a.cat||'')+'</span><a href="#acc:'+encodeURIComponent(p.a)+'">상세↗</a></div>'+
+  '<div class="r1"><span class="ac" data-a="'+esc(p.a)+'" title="클릭: 이 계정만 / Alt+클릭: 계정 상세">@'+esc(p.a)+'</span></div><div class="r1 muted small">'+esc(p.d||'')+' · <span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat||''))+'</span><a href="#acc:'+encodeURIComponent(p.a)+'">상세↗</a></div>'+
   '<div class="cap">'+(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'')+(p.orig?'<details class="orig"><summary>원문 보기 ('+esc(p.lang)+')</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}).join('')}
 /* ---------- 계정 카드 ---------- */
 let AF={cat:'',theme:'',target:'',region:'',sort:'followers',q:''};
 VIEWS.accs=()=>{const A=D.acc||[];
- tools('<select id="af"><option value="">전체 형식</option>'+['인스타툰','카드뉴스','한장형','릴스','기타'].map(x=>'<option>'+x+'</option>').join('')+'</select><select id="at"><option value="">전체 주제</option>'+[...new Set(A.map(a=>a.themeG).filter(Boolean))].sort().map(x=>'<option>'+esc(x)+'</option>').join('')+'</select><select id="ag"><option value="">전체 타깃</option>'+[...new Set(A.flatMap(a=>a.targets||[]))].sort().map(x=>'<option>'+esc(x)+'</option>').join('')+'</select><select id="ar"><option value="">전 지역</option>'+Object.entries(REG).map(([a,b])=>'<option value="'+a+'">'+b+'</option>').join('')+'</select><span class="lab">정렬</span><select id="as"><option value="followers">팔로워</option><option value="er">좋아요/팔로워</option><option value="avgL">평균 좋아요</option><option value="postsN">게시물 수</option><option value="h">이름</option></select><input type="search" id="aq" placeholder="계정·주제 검색" size="14"><span id="acnt" class="lab"></span>');
+ tools('<select id="af"><option value="">전체 형식</option>'+['인스타툰','카드뉴스','한장형','릴스','기타'].map(x=>'<option value="'+x+'">'+catL(x)+'</option>').join('')+'</select><select id="at"><option value="">전체 주제</option>'+[...new Set(A.map(a=>a.themeG).filter(Boolean))].sort().map(x=>'<option>'+esc(x)+'</option>').join('')+'</select><select id="ag"><option value="">전체 타깃</option>'+[...new Set(A.flatMap(a=>a.targets||[]))].sort().map(x=>'<option>'+esc(x)+'</option>').join('')+'</select><select id="ar"><option value="">전 지역</option>'+Object.entries(REG).map(([a,b])=>'<option value="'+a+'">'+b+'</option>').join('')+'</select><span class="lab">정렬</span><select id="as"><option value="followers">팔로워</option><option value="er">좋아요/팔로워</option><option value="avgL">평균 좋아요</option><option value="postsN">게시물 수</option><option value="h">이름</option></select><input type="search" id="aq" placeholder="계정·주제 검색" size="14"><span id="acnt" class="lab"></span>');
  ['#af','#at','#ag','#ar','#as'].forEach(s=>$(s).onchange=renderAccs);$('#aq').oninput=renderAccs;$('#view').innerHTML='<div id="acl" class="grid g4"></div>';renderAccs()};
 function aVal(a,k){if(k==='er')return a.stats?.er??-1;if(k==='avgL')return a.stats?.avgL??-1;if(k==='h')return a.h;return a[k]??-1}
 function accCard(a){const th=(a.top||[]).slice(0,3).map(sc=>{const p=D.postBy[a.h+'/'+sc];return p?'<img loading="lazy" src="'+p.img+'">':''}).join('');
  return '<div class="ac-card t-'+(CATC[a.cat]||'wine')+'" data-h="'+esc(a.h)+'"><img class="pf" loading="lazy" src="'+(a.pf||'')+'" onerror="this.style.visibility=\'hidden\'"><div style="min-width:0;flex:1"><div class="nm">@'+esc(a.h)+' <span class="muted small">'+esc(a.name||'')+'</span></div>'+
  '<div class="st">팔로워 <b>'+fmtN(a.followers)+'</b> · 게시물 '+fmtN(a.postsN)+(a.stats&&a.stats.avgL!=null?' · 평균♥ <b>'+fmtN(Math.round(a.stats.avgL))+'</b> · <span title="평균 좋아요/팔로워">'+pct(a.stats.er)+'</span>':'')+'</div>'+
- '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(a.cat)+'</span><span class="chip">'+(REG[a.region]||'')+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div>'+
+ '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat))+'</span><span class="chip">'+(REG[a.region]||'')+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div>'+
  '<div class="pt">'+esc(a.topic||'')+'</div>'+(a.note?'<div class="note">⚠ '+esc(a.note)+'</div>':'')+'<div class="ths">'+th+'</div></div></div>'}
 function renderAccs(){let A=(D.acc||[]).filter(a=>(!$('#af').value||a.cat===$('#af').value)&&(!$('#at').value||a.themeG===$('#at').value)&&(!$('#ag').value||(a.targets||[]).includes($('#ag').value))&&(!$('#ar').value||a.region===$('#ar').value));
  const q=$('#aq').value.trim().toLowerCase();if(q)A=A.filter(a=>(a.h+' '+a.name+' '+a.topic+' '+(a.bio||'')).toLowerCase().includes(q));
@@ -113,8 +113,8 @@ async function openAcc(h){const a=D.accBy[h];if(!a)return;if(!(window.ACC_MD&&AC
  const posts=(D.posts||[]).filter(p=>p.a===h).sort((x,y)=>(y.l??-1)-(x.l??-1));const s=a.stats||{};
  const kv=(k,v)=>'<div class="kpi t-navy"><div class="v" style="font-size:16px">'+v+'</div><div class="k">'+k+'</div></div>';
  let html='<button class="x" onclick="backAcc()">✕ 닫기</button><div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><img src="'+(a.pf||'')+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover"><div><div style="font-size:17px;font-weight:900">@'+esc(h)+' <span class="muted" style="font-size:13px">'+esc(a.name||'')+'</span> <a href="https://www.instagram.com/'+esc(h)+'/" target="_blank">인스타 열기↗</a></div>'+
- '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(a.cat)+'</span><span class="chip">'+(REG[a.region]||'')+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div><div class="small" style="white-space:pre-wrap;color:#c8d1e4">'+esc(a.bio||'')+'</div>'+(a.note?'<div class="warn">⚠ '+esc(a.note)+'</div>':'')+'</div></div>';
- html+='<div class="grid g6" style="margin-bottom:6px">'+kv('팔로워 (ego 실측)',fmtN(a.followers))+kv('게시물 수',fmtN(a.postsN))+kv('최근 '+(s.n||0)+'개 평균 좋아요',s.avgL==null?'숨김':fmtN(Math.round(s.avgL)))+kv('평균 좋아요/팔로워',pct(s.er))+kv('평균 댓글',s.avgC==null?'-':fmtN(Math.round(s.avgC)))+kv('형식 비율 (슬라이드/영상/단일)',(s.mix||'-'))+'</div>';
+ '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat))+'</span><span class="chip">'+(REG[a.region]||'')+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div><div class="small" style="white-space:pre-wrap;color:#c8d1e4">'+esc(a.bio||'')+'</div>'+(a.note?'<div class="warn">⚠ '+esc(a.note)+'</div>':'')+'</div></div>';
+ html+='<div class="grid g6" style="margin-bottom:6px">'+kv('팔로워 (ego 실측)',fmtN(a.followers))+kv('게시물 수',fmtN(a.postsN))+kv('최근 '+(s.n||0)+'개 평균 좋아요',s.avgL==null?'~'+fmtN(Math.round((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)))+' (추정)':fmtN(Math.round(s.avgL)))+kv('평균 좋아요/팔로워',s.er==null?(a.followers?'~'+pct((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)/a.followers):'-'):pct(s.er))+kv('평균 댓글',s.avgC==null?'-':fmtN(Math.round(s.avgC)))+kv('형식 비율 (슬라이드/영상/단일)',(s.mix||'-'))+'</div>';
  html+='<div class="grid g2"><div class="sec t-mint"><h2>🧠 공통기억 분석 <small>accounts/ 원문 · 수치 검증 안 됨</small></h2><div><b>주제:</b> '+hl(a.topic||'')+'</div>'+(a.mem?.point?.length?'<div><b>벤치마킹 포인트:</b> '+a.mem.point.map(hl).join(' / ')+'</div>':'')+(a.mem?.nums?.length?'<div class="note">기록 수치: '+a.mem.nums.map(hl).join(' / ')+'</div>':'')+'</div>'+
  '<div class="sec t-blue"><h2>🔎 최근 게시물 분석 <small>ego 수집 '+esc(a.fetched||'')+' 기준 자동 요약</small></h2>'+(a.ai?'<div class="sum">'+hl(a.ai)+'</div>':'')+(a.kw?.length?'<div>'+a.kw.map(w=>'<span class="chip c-purple">'+esc(w)+'</span>').join('')+'</div>':'')+(s.cad?'<div class="note">업로드 간격 중앙값 약 <b class="n">'+s.cad+'일</b> · 최근 게시 '+esc(s.last||'')+'</div>':'')+'</div></div>';
  html+='<div class="sec t-navy"><h2>🖼 최근 게시물 (좋아요순) <small>클릭하면 인스타 원본</small></h2><div class="grid" style="grid-template-columns:repeat(6,minmax(0,1fr))">'+posts.map(p=>{const u='https://www.instagram.com/'+(p.k==='reel'?'reel':'p')+'/'+p.sc+'/';return '<div class="pc open"><a class="th" href="'+u+'" target="_blank"><img loading="lazy" src="'+p.img+'"></a><div class="b"><div class="m">'+(p.v!=null?'<span class="vw">▶'+fmtN(p.v)+'</span>':'')+'<span class="lk">♥'+(p.l==null?'숨김':fmtN(p.l))+'</span><span class="cm">💬'+fmtN(p.c)+'</span><span class="muted">'+esc(p.d||'')+'</span></div><div class="cap" style="max-height:120px">'+(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'')+(p.orig?'<details class="orig"><summary>원문</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}).join('')+'</div></div>';
@@ -152,7 +152,7 @@ function convCard(c,col,open){const f=c.fields||{};
  return '<div class="cv'+(open?'':' fold')+'"><div class="hd t-'+col+'" onclick="this.parentNode.classList.toggle(\'fold\')"><span class="st">'+'★'.repeat(c.stars)+'</span><span>'+esc(c.title)+'</span><span class="muted small" style="margin-left:auto">📌'+c.blocks.length+' · 규칙'+((f.규칙||[]).length)+' · 결정'+((f.결정||[]).length)+' ▾</span></div><div class="bd">'+
  (f.요약?'<div class="sum">'+f.요약.map(hl).join('<br>')+'</div>':'')+
  '<div class="cols3">'+L('📏 규칙',f.규칙,'mint')+L('✅ 결정',f.결정,'blue')+L('💜 선호',f.선호,'purple')+'</div>'+
- c.blocks.map(b=>'<details class="blk"><summary>📌 '+esc(b.t)+copyBtn('')+'</summary><pre>'+esc(b.code)+'</pre></details>').join('')+
+ c.blocks.map(b=>'<details class="blk"><summary>📌 '+esc(b.t)+copyBtn('')+'</summary><pre>'+fmtPre(b.code)+'</pre></details>').join('')+
  (f['확인 필요']?'<div class="warn">⚠ 확인 필요: '+f['확인 필요'].map(hl).join(' / ')+'</div>':'')+
  (f.링크?'<div class="note">🔗 '+f.링크.join(' ').replace(/\[(\d+)\]\((https?:[^)]+)\)/g,(m,n,u)=>'<a href="'+esc(u)+'" target="_blank">['+n+']</a>')+'</div>':'')+
  (f.캡처?'<div class="note">🖼 '+esc(f.캡처.join(' ').replace(/^- 🖼 /,''))+' (로컬 공통기억 VIEW/media — 공개 저장소에는 미포함)</div>':'')+
@@ -167,7 +167,7 @@ function viewPack(k){const [pre,col]=PACKMAP[k];const S=(D.pack||[]).find(s=>s.t
 VIEWS.prompts=()=>{const all=[];(D.pack||[]).forEach(s=>s.convs.forEach(c=>c.blocks.forEach(b=>all.push({s:s.title,c:c.title,b}))));
  tools('<input type="search" id="pq" placeholder="프롬프트·카피 검색" size="20"><select id="ps"><option value="">전체 섹션</option>'+(D.pack||[]).filter(s=>s.convs.length).map(s=>'<option>'+esc(s.title)+'</option>').join('')+'</select><span id="pcnt" class="lab"></span>');
  const r=()=>{const q=$('#pq').value.trim().toLowerCase(),ss=$('#ps').value;const f=all.filter(x=>(!ss||x.s===ss)&&(!q||(x.b.t+' '+x.b.code+' '+x.c).toLowerCase().includes(q)));$('#pcnt').textContent=f.length+'개';
-  $('#view').innerHTML='<div class="grid g2">'+f.map(x=>'<details class="blk"><summary>📌 '+esc(x.b.t)+' <span class="muted small">'+esc(x.s.replace(/\(.*\)/,''))+' › '+esc(x.c.slice(0,30))+'</span>'+copyBtn('')+'</summary><pre>'+esc(x.b.code)+'</pre></details>').join('')+'</div>'};
+  $('#view').innerHTML='<div class="grid g2">'+f.map(x=>'<details class="blk"><summary>📌 '+esc(x.b.t)+' <span class="muted small">'+esc(x.s.replace(/\(.*\)/,''))+' › '+esc(x.c.slice(0,30))+'</span>'+copyBtn('')+'</summary><pre>'+fmtPre(x.b.code)+'</pre></details>').join('')+'</div>'};
  $('#pq').oninput=r;$('#ps').onchange=r;r()};
 /* ---------- 30일 캘린더 ---------- */
 VIEWS.plan30=()=>{const P=D.plan30;if(!P){$('#view').innerHTML='데이터 없음';return}
@@ -182,7 +182,7 @@ VIEWS.plan30=()=>{const P=D.plan30;if(!P){$('#view').innerHTML='데이터 없음
  h+='<div class="grid g2"><div class="sec t-blue"><h2>🪜 10단계 실행표 <small>표 하나만 (사용자 지정)</small></h2><table class="t"><tr><th>단계</th><th>기간</th><th>할 일</th><th>핵심 포인트</th><th>성공 기준</th></tr>'+P.steps.map(s=>'<tr><td class="nowrap"><b>'+s.n+'단계</b></td><td class="nowrap">'+esc(s.p)+'</td><td>'+hl(s.todo)+'</td><td class="small">'+hl(s.pt)+'</td><td class="small"><mark class="g">'+hl(s.ok)+'</mark></td></tr>').join('')+'</table></div>';
  h+='<div class="sec t-purple"><h2>📐 플랫폼별 글 규격표 <small>사용자 원문</small></h2><table class="t"><tr><th>플랫폼</th><th>최대</th><th>인기 권장 길이</th><th>이미지</th></tr>'+P.spec.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i==0?' class="nowrap"':'')+'>'+(i==0?'<b>'+esc(c)+'</b>':hl(c))+'</td>').join('')+'</tr>').join('')+'</table><h2 style="margin-top:6px">🗣 플랫폼별 말투·발행 수</h2><table class="t"><tr><th>플랫폼</th><th>역할</th><th>말투</th><th>발행</th></tr>'+P.tone.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i==0?' class="nowrap"':'')+'>'+(i==0?'<b>'+esc(c)+'</b>':hl(c))+'</td>').join('')+'</tr>').join('')+'</table></div></div>';
  $('#view').innerHTML=h;
- $$('.day').forEach(e=>e.onclick=()=>{const d=+e.dataset.d;const x=P.days.find(y=>y.d===d);if(!x){return}modal('<button class="x" onclick="closeMod()">✕</button><h2 style="margin:0 0 4px">Day '+d+' — '+esc(x.title)+'</h2><div class="sum"><b>주제:</b> '+hl(x.topic)+'</div><details class="blk" open><summary>📌 프롬프트'+copyBtn('')+'</summary><pre>'+esc(x.prompt)+'</pre></details>')})};
+ $$('.day').forEach(e=>e.onclick=()=>{const d=+e.dataset.d;const x=P.days.find(y=>y.d===d);if(!x){return}modal('<button class="x" onclick="closeMod()">✕</button><h2 style="margin:0 0 4px">Day '+d+' — '+esc(x.title)+'</h2><div class="sum"><b>주제:</b> '+hl(x.topic)+'</div><details class="blk" open><summary>📌 프롬프트'+copyBtn('')+'</summary><pre>'+fmtPre(x.prompt)+'</pre></details>')})};
 /* ---------- 혜민 ---------- */
 VIEWS.hm=()=>{const H=D.hm;let h='<div class="note">출처: 공통기억 STRATEGY_혜민_투자인스타 + PACK_06 §7 (2026-10-17~20 대화 28개 메시지). 점수·매출은 <mark class="p">기획용 가정값, 실적 아님</mark>. 법률 내용은 과거 기획상 주의사항 — 출시 전 별도 확인.</div>';
  h+='<div class="sec t-orange"><h2>🔁 수익 퍼널</h2><div class="flow">'+H.funnel.map((x,i)=>(i?'<span class="ar">→</span>':'')+'<div class="st t-'+['blue','mint','green','yellow','orange','wine','purple','navy'][i%8]+'"><b>'+(i+1)+'. '+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>').join('')+'</div></div>';
@@ -196,7 +196,7 @@ VIEWS.hm=()=>{const H=D.hm;let h='<div class="note">출처: 공통기억 STRATEG
  h+='<div class="sec t-navy"><h2>📏 KPI (조회수 하나가 아님)</h2><table class="t"><tr><th>KPI</th><th>계산</th><th>목적</th></tr>'+H.kpi.map(r=>'<tr><td class="nowrap"><b>'+esc(r[0])+'</b></td><td class="small">'+esc(r[1])+'</td><td class="small">'+esc(r[2])+'</td></tr>').join('')+'</table></div>';
  h+='<div class="sec t-orange"><h2>🗂 기획 시트 15탭 · 주제 예시</h2>'+H.tabs.map(t=>'<span class="chip c-orange">'+esc(t)+'</span>').join('')+'<div style="margin-top:5px">'+H.topics.map(t=>'<span class="chip c-yellow">'+esc(t)+'</span>').join('')+'</div><div class="note">과거 GPT가 "시트 15탭 반영 완료"라고 했으나 외부 시트 미검증 · 5개월/150일·1,050 슬롯은 계획값.</div></div></div>';
  h+='<div class="sec t-blue"><h2>🎬 계정별 4~6화 이어가기</h2><table class="t"><tr><th>계정</th><th>4화</th><th>5화</th><th>6화</th></tr>'+H.eps.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i?'':' class="nowrap"')+'>'+(i?esc(c):'<b>'+esc(c)+'</b>')+'</td>').join('')+'</tr>').join('')+'</table></div>';
- h+=H.prompts.map(p=>'<details class="blk"><summary>📋 '+esc(p[0])+copyBtn('')+'</summary><pre>'+esc(p[1])+'</pre></details>').join('');
+ h+=H.prompts.map(p=>'<details class="blk"><summary>📋 '+esc(p[0])+copyBtn('')+'</summary><pre>'+fmtPre(p[1])+'</pre></details>').join('');
  $('#view').innerHTML=h};
 VIEWS.hm_week=()=>{const H=D.hm;const days=['월','화','수','목','금','토','일'];
  let h='<div class="sec t-orange"><h2>📅 주간 7슬롯 기획판 <small>하루 7개 = 핵심 주제 1~2개의 매체별 변환 · 빈칸 템플릿</small></h2><div class="note">아래 명령을 복사해 Hermes/Claude에 붙이면 이 표를 채운 다음 주 계획을 받습니다.</div><div class="cmd copyhost"><span class="w">다음 주 7개 기획</span><code>'+esc(H.weekCmd)+'</code>'+copyBtn(H.weekCmd)+'</div></div>';
@@ -208,3 +208,129 @@ buildSide();window.addEventListener('hashchange',route);
 $('#mb').onclick=()=>document.body.classList.toggle(innerWidth<700?'open':'unpin');
 $('#mod').onclick=e=>{if(e.target.id==='mod')backAcc()};
 route();
+
+/* =================== v2 =================== */
+const SHORT={'인스타툰':'툰'};function catL(c){return SHORT[c]||c}
+function sd(d){const m=(d||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[1].slice(2)+'.'+(+m[2])+'.'+(+m[3]):(d||'')}
+const INV=['경제·재테크','주식·ETF','시사·경제뉴스','생활금융·절약','부동산'];
+(D.acc||[]).forEach(a=>{a.field=a.themeG==='AI·창업·크리에이터'||(/AI|GPT|인공지능/.test(a.topic||'')&&!INV.includes(a.themeG))?'AI·창업':INV.includes(a.themeG)?'투자':'기타'});
+const byAcc={};(D.posts||[]).forEach(p=>(byAcc[p.a]=byAcc[p.a]||[]).push(p));
+/* ---- 추정 모델 ---- */
+function med(a){a=a.filter(x=>x!=null&&isFinite(x)).sort((x,y)=>x-y);return a.length?a[a.length>>1]:null}
+(function estimate(){const catR={},catE={},accR={};
+ Object.entries(byAcc).forEach(([h,ps])=>{const a=D.accBy[h]||{};const r=med(ps.filter(p=>p.l>0&&p.c>0).map(p=>p.l/p.c));if(r){accR[h]=ps.filter(p=>p.l>0&&p.c>0).length>=2?r:null;(catR[a.cat]=catR[a.cat]||[]).push(r)}
+  const e=med(ps.filter(p=>p.l>0&&a.followers).map(p=>p.l/a.followers));if(e)(catE[a.cat]=catE[a.cat]||[]).push(e)});
+ const gR=med(Object.values(catR).flat())||15,gE=med(Object.values(catE).flat())||.01;
+ const RATE={vid:.035,car:.04,img:.045};
+ (D.posts||[]).forEach(p=>{const a=D.accBy[p.a]||{};
+  if(p.l>0){p.el=p.l;p.eL=false}else{const r=accR[p.a]||med(catR[a.cat]||[])||gR;const e=med(catE[a.cat]||[])||gE;p.el=Math.round(p.c>0?p.c*r:(a.followers||0)*e);p.eL=true}
+  if(p.v>0){p.ev=p.v;p.eV=false}else{p.ev=Math.round(p.el/RATE[p.t||'img']);p.eV=true}
+  p.es=Math.round(p.ev*(p.t==='vid'?.006:.005))}) })();
+const EST_NOTE='~ = 추정값. 인스타는 조회·공유 수를 공개하지 않아 계산: 조회≈좋아요÷(릴스 3.5%·슬라이드 4%·단일 4.5%), 숨김 좋아요≈댓글×계정 평균 좋아요/댓글 비(없으면 팔로워×분류 중앙값), 공유≈조회×0.5~0.6%. 릴스 실조회·공개 좋아요·댓글은 실측.';
+const SORTS={ev:'조회수(추정)',el:'좋아요',c:'댓글',es:'공유(추정)',d:'최신순',er:'좋아요/팔로워',f:'계정 팔로워'};
+function pv(p,k){const a=D.accBy[p.a]||{};if(k==='er')return a.followers?p.el/a.followers:-1;if(k==='f')return a.followers||0;if(k==='d')return p.d||'';return p[k]==null?-1:p[k]}
+function sortPosts(arr,k,desc){return [...arr].sort((x,y)=>{const A=pv(x,k),B=pv(y,k);const c=A<B?-1:A>B?1:0;return desc?-c:c})}
+function mline(p){const f=(v,e)=>v==null?'-':(e?'~':'')+fmtN(Math.round(v));
+ return '<span class="vw" title="조회수'+(p.eV?' (추정)':' (실측)')+'">▶'+f(p.ev,p.eV)+'</span><span class="lk" title="좋아요'+(p.eL?' (숨김→추정)':'')+'">♥'+f(p.el,p.eL)+'</span><span class="cm" title="댓글">💬'+(p.c==null?'-':fmtN(p.c))+'</span><span class="sh" title="공유 (추정)">↗'+f(p.es,true)+'</span>'}
+const LISTS={};let LC=0;function reg(arr){const id='l'+(++LC);LISTS[id]=arr;return id}
+function postCard(p,i,lid){const cap=(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'');
+ return '<div class="pc"><span class="tag">'+(i+1)+'</span><span class="fmt">'+(p.t==='vid'?'🎬':p.t==='car'?'🗂':'🖼')+(p.pin?'📌':'')+'</span><div class="th" data-lid="'+lid+'" data-i="'+i+'" title="클릭: 미리보기"><img loading="lazy" src="'+p.img+'" alt=""></div><div class="b"><div class="m">'+mline(p)+'</div><div class="r1 muted small"><span class="dt">'+sd(p.d)+'</span><span class="idn"> · <span class="ac" data-a="'+esc(p.a)+'">@'+esc(p.a)+'</span></span><span class="tg" title="제목·설명 펼치기/접기">글▾</span></div><div class="cap">'+cap+(p.orig?'<details class="orig"><summary>원문 ('+esc(p.lang)+')</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}
+function gallery(arr,cols,extra){const id=reg(arr);return '<div class="gg" style="grid-template-columns:repeat('+cols+',minmax(0,1fr))">'+arr.map((p,i)=>postCard(p,i,id)).join('')+'</div>'}
+/* ---- 미리보기(라이트박스) ---- */
+const LB={list:[],i:0};
+function openLB(list,i){LB.list=list;LB.i=i;drawLB();$('#lb').classList.add('on')}
+function closeLB(){$('#lb').classList.remove('on');$('#lb').innerHTML=''}
+function drawLB(){const p=LB.list[LB.i];if(!p)return;const a=D.accBy[p.a]||{};const kind=p.k==='reel'?'reel':'p';const u='https://www.instagram.com/'+kind+'/'+p.sc+'/';
+ $('#lb').innerHTML='<div class="lbx"><button class="lbc">✕</button><button class="lbn" data-d="-1">◀</button><div class="lbm" style="background-image:url('+p.img+')"><iframe src="'+u+'embed/" loading="lazy" allowfullscreen></iframe></div><button class="lbn" data-d="1">▶</button><div class="lbs"><div class="muted small">'+(LB.i+1)+' / '+LB.list.length+' · ← → 이동 · Esc 닫기</div><div style="font-weight:900;font-size:14px">@'+esc(p.a)+' <span class="muted">'+esc(a.name||'')+'</span></div><div class="m lbmm">'+mline(p)+'</div><div class="small muted">'+sd(p.d)+' · 팔로워 '+fmtN(a.followers)+' · <a href="'+u+'" target="_blank">인스타에서 열기↗</a></div><div class="note">'+EST_NOTE+'</div><div class="lcap">'+(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'')+(p.orig?'<details class="orig"><summary>원문 ('+esc(p.lang)+')</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}
+document.addEventListener('click',e=>{
+ const th=e.target.closest('.th[data-lid]');if(th){e.preventDefault();openLB(LISTS[th.dataset.lid],+th.dataset.i);return}
+ const tg=e.target.closest('.pc .tg');if(tg){tg.closest('.pc').classList.toggle('open');return}
+ const ac=e.target.closest('.pc .ac');if(ac){if(window.curV&&curV.startsWith('b_')&&$('#ga')){$('#ga').value=ac.dataset.a;renderBoard();scrollTo(0,0)}else{closeLB();location.hash='acc:'+encodeURIComponent(ac.dataset.a)}return}
+ if(e.target.closest('#lb')){const n=e.target.closest('.lbn');if(n){LB.i=(LB.i+ +n.dataset.d+LB.list.length)%LB.list.length;drawLB()}else if(e.target.closest('.lbc')||e.target.id==='lb')closeLB()}},true);
+window.addEventListener('keydown',e=>{if(!$('#lb').classList.contains('on'))return;if(e.key==='Escape'){closeLB();e.stopImmediatePropagation()}else if(e.key==='ArrowRight'||e.key==='ArrowLeft'){LB.i=(LB.i+(e.key==='ArrowRight'?1:-1)+LB.list.length)%LB.list.length;drawLB()}},true);
+/* ---- 강조 (노랑 숫자 · 빨강 위험/핵심 · 시안 키워드) ---- */
+const RED=/(금지|절대|하지 않|못 함|필수|반드시|위험|규제|주의|제외|거부|보장|검증 안 됨|검증 불가|미검증|수정금지)/g,KEYW=/(핵심|결정|목표|전략|퍼널|CTA|후킹|훅|저장|공유|전환|팔로우|수익화|차별화|무료|유료)/g,NUMRE=/(\d[\d,\.]*\s?(?:%|만\s?원|억\s?원|천\s?원|원|만|억|천|배|명|개|일|장|컷|초|분|위|점|건|회|자|주|px)?)/g;
+function tagSafe(h,fn){return h.split(/(<[^>]+>)/).map(t=>t[0]==='<'?t:fn(t)).join('')}
+function hl(s){let h=esc(s).replace(/\*\*(.+?)\*\*/g,'<mark>$1</mark>');return tagSafe(h,t=>t.replace(NUMRE,'<b class="n">$1</b>').replace(RED,'<u class="rd">$1</u>').replace(KEYW,'<span class="ky">$1</span>'))}
+function fmtPre(t){return esc(t).split('\n').map(l=>{let h=l;const head=/^\s*#{1,4}\s/.test(l)||(/[:：]\s*$/.test(l)&&l.length<70)||/^\s*(STEP|Step|ROLE|GOAL|TASK|RULES|OUTPUT)\b/.test(l);
+ h=h.replace(/^(\s*)([-*•])\s/,'$1<span class="bl">●</span> ').replace(/^(\s*)(\d+[\.\)])\s/,'$1<span class="nm">$2</span> ');
+ h=tagSafe(h,x=>x.replace(/([①-⑩❶-❿🔴🟢🔹★☆✅☑▶◆■□])/g,'<span class="nm">$1</span>').replace(/(&quot;[^&]{2,80}?&quot;|“[^”]{2,80}”)/g,'<span class="q">$1</span>').replace(/(\[[^\]\n]{1,24}\])/g,'<span class="ph">$1</span>').replace(NUMRE,'<b class="n">$1</b>').replace(RED,'<u class="rd">$1</u>'));
+ return head?'<span class="hd1">'+h+'</span>':h}).join('\n')}
+/* ---- 팩 카드 ---- */
+function convCard(c,col,open){const f=c.fields||{};
+ const L=(t,arr,cl,ic)=>arr&&arr.length?'<div class="lst t-'+cl+(arr.length>6?' more':'')+'"><h4>'+t+' <span class="muted">'+arr.length+'</span></h4><ul>'+arr.map(x=>{let hh=hl(x);if(t.includes('결정')){const i=x.indexOf(':');hh=i>0&&i<40?'<span class="dcy">'+esc(x.slice(0,i))+'</span>'+hl(x.slice(i)):'<span class="dcy">'+hh+'</span>'}return '<li><span class="ic">'+ic+'</span>'+hh+'</li>'}).join('')+'</ul>'+(arr.length>6?'<span class="mb" onclick="this.parentNode.classList.toggle(\'more\');this.textContent=this.parentNode.classList.contains(\'more\')?\'▾ 더보기\':\'▴ 접기\'">▾ 더보기</span>':'')+'</div>':'';
+ return '<div class="cv'+(open?'':' fold')+'"><div class="hd t-'+col+'" onclick="this.parentNode.classList.toggle(\'fold\')"><span class="st">'+'★'.repeat(c.stars)+'</span><span>'+esc(c.title)+'</span><span class="muted small" style="margin-left:auto">📌'+c.blocks.length+' · 📏'+((f.규칙||[]).length)+' · 🔴'+((f.결정||[]).length)+' ▾</span></div><div class="bd">'+
+ (f.요약?'<div class="sum">'+f.요약.map(hl).join('<br>')+'</div>':'')+
+ '<div class="cols3">'+L('📏 규칙',f.규칙,'mint','📏')+L('🔴 결정',f.결정,'wine','🔴')+L('💜 선호',f.선호,'purple','💜')+'</div>'+
+ c.blocks.map(b=>'<details class="blk"><summary>📌 '+esc(b.t)+copyBtn('')+'</summary><pre>'+fmtPre(b.code)+'</pre></details>').join('')+
+ (f['확인 필요']?'<div class="warn">⚠ 확인 필요: '+f['확인 필요'].map(hl).join(' / ')+'</div>':'')+
+ (f.링크?'<div class="note">🔗 '+f.링크.join(' ').replace(/\[(\d+)\]\((https?:[^)]+)\)/g,(m,n,u)=>'<a href="'+esc(u)+'" target="_blank">['+n+']</a>')+'</div>':'')+
+ (f.캡처?'<div class="note">🖼 '+esc(f.캡처.join(' ').replace(/^- 🖼 /,''))+' (공통기억 VIEW/media — 공개 저장소 미포함)</div>':'')+
+ (f.원문?'<div class="note">원문: '+esc(f.원문.join(' '))+'</div>':'')+(c.extra?'<details class="blk"><summary>기타 원문</summary><div class="md" style="padding:6px">'+md(c.extra)+'</div></details>':'')+'</div></div>'}
+/* ---- 게시물 보드 ---- */
+G.key='ev';G.desc=true;G.cols=+LS.cols2||6;
+function capBtns(){return '<button id="gcap" class="'+(document.body.classList.contains('showcap')?'on':'')+'">제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')+'</button><button id="gid" class="'+(document.body.classList.contains('noid')?'on':'')+'">ID '+(document.body.classList.contains('noid')?'숨김':'표시')+'</button>'}
+function bindCap(rerender){$('#gcap').onclick=()=>{document.body.classList.toggle('showcap');$('#gcap').classList.toggle('on');$('#gcap').textContent='제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')};$('#gid').onclick=()=>{document.body.classList.toggle('noid');$('#gid').classList.toggle('on');$('#gid').textContent='ID '+(document.body.classList.contains('noid')?'숨김':'표시')}}
+const sortOpts=()=>Object.entries(SORTS).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+let BP=null;
+VIEWS.b=(k)=>{const pre={b_all:null,b_toon:['인스타툰'],b_card:['카드뉴스'],b_one:['한장형'],b_reel:['릴스','기타'],b_ai:['인스타툰','카드뉴스','한장형']}[k];BP={pre,fld:k==='b_ai'?'AI·창업':''};
+ const pool=(D.acc||[]).filter(a=>(!pre||pre.includes(a.cat))&&(!BP.fld||a.field===BP.fld)&&(byAcc[a.h]||[]).length);
+ const themes=[...new Set(pool.map(a=>a.themeG).filter(Boolean))].sort(),targets=[...new Set(pool.flatMap(a=>a.targets||[]))].sort();
+ tools('<span class="lab">열</span><input type="range" id="gc" min="3" max="14" value="'+G.cols+'"><b id="gcn">'+G.cols+'</b><span class="lab">정렬</span><select id="gk">'+sortOpts()+'</select><button id="gd">내림 ▼</button>'+
+ ((pre&&pre.length==1)||BP.fld?'':'<select id="gf"><option value="">전체 형식</option>'+['인스타툰','카드뉴스','한장형','릴스','기타'].map(x=>'<option value="'+x+'">'+catL(x)+'</option>').join('')+'</select>')+
+ (BP.fld?'':'<select id="gfd"><option value="">전체 분야</option><option>투자</option><option>AI·창업</option><option>기타</option></select>')+
+ '<select id="gt"><option value="">전체 주제</option>'+themes.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select><select id="gg"><option value="">전체 타깃</option>'+targets.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>'+
+ '<select id="gr"><option value="">전 지역</option>'+Object.entries(REG).map(([a,b])=>'<option value="'+a+'">'+b+'</option>').join('')+'</select><select id="gy"><option value="">전 유형</option><option value="car">슬라이드</option><option value="vid">릴스·영상</option><option value="img">단일 이미지</option></select>'+
+ '<select id="ga"><option value="">전체 계정 ('+pool.length+')</option>'+pool.sort((x,y)=>(y.followers||0)-(x.followers||0)).map(a=>'<option value="'+esc(a.h)+'">@'+esc(a.h)+' '+fmtN(a.followers)+'</option>').join('')+'</select>'+
+ '<input type="search" id="gq" placeholder="검색" size="10">'+capBtns()+'<span id="gcnt" class="lab"></span><span class="lab" title="'+esc(EST_NOTE)+'" style="cursor:help">ⓘ 추정(~) 기준</span>');
+ $('#gk').value=G.key;
+ $('#gc').oninput=e=>{G.cols=+e.target.value;LS.cols2=G.cols;$('#gcn').textContent=G.cols;$('#gal .gg').style.gridTemplateColumns='repeat('+G.cols+',minmax(0,1fr))'};
+ $('#gk').onchange=e=>{G.key=e.target.value;renderBoard()};$('#gd').onclick=()=>{G.desc=!G.desc;renderBoard()};
+ ['#gf','#gfd','#gt','#gg','#gr','#gy','#ga'].forEach(s=>$(s)&&($(s).onchange=renderBoard));$('#gq').oninput=renderBoard;bindCap();
+ $('#view').innerHTML='<div class="note" style="margin:0 0 4px">'+EST_NOTE+'</div><div id="gal"></div>';renderBoard()};
+function renderBoard(){const {pre,fld}=BP;const f=$('#gf')?.value,fd=$('#gfd')?.value||fld,t=$('#gt').value,g=$('#gg').value,r=$('#gr').value,y=$('#gy').value,ac=$('#ga').value,q=$('#gq').value.trim().toLowerCase();
+ let arr=(D.posts||[]).filter(p=>{const a=D.accBy[p.a]||{};if(pre&&!pre.includes(a.cat))return false;if(f&&a.cat!==f)return false;if(fd&&a.field!==fd)return false;if(t&&a.themeG!==t)return false;if(g&&!(a.targets||[]).includes(g))return false;if(r&&a.region!==r)return false;if(y&&p.t!==y)return false;if(ac&&p.a!==ac)return false;
+  if(q&&!((p.a+' '+(a.name||'')+' '+(p.cap||'')+' '+(p.orig||'')).toLowerCase().includes(q)))return false;return true});
+ arr=sortPosts(arr,G.key,G.desc).slice(0,1500);$('#gd').textContent=G.desc?'내림 ▼':'오름 ▲';$('#gcnt').textContent=arr.length+'개';
+ $('#gal').innerHTML=gallery(arr,G.cols)}
+/* ---- 묶음 ---- */
+let GS={cols:6,key:'ev'};
+VIEWS.grp=(k)=>{const by=k==='grp_theme'?'themeG':'target';const A=(D.acc||[]).filter(a=>['인스타툰','카드뉴스','한장형'].includes(a.cat));const groups={};
+ A.forEach(a=>{const ks=by==='target'?(a.targets?.length?a.targets:['기타']):[a.themeG||'기타'];ks.forEach(g=>(groups[g]=groups[g]||[]).push(a))});
+ tools('<span class="lab">열</span><input type="range" id="gc" min="3" max="12" value="'+GS.cols+'"><b id="gcn">'+GS.cols+'</b><span class="lab">정렬</span><select id="gk">'+sortOpts()+'</select><button id="gd">내림 ▼</button>'+capBtns()+'<span class="lab">그룹마다 상위 12개 · 툰·카드뉴스·한장형</span>');
+ $('#gk').value=GS.key;const cols=['mint','blue','purple','orange','green','wine','yellow','navy'];
+ const r=()=>{$('#gd').textContent=G.desc?'내림 ▼':'오름 ▲';$('#view').innerHTML='<div class="note">'+EST_NOTE+'</div>'+Object.entries(groups).sort((a,b)=>b[1].length-a[1].length).map(([g,arr],i)=>{const hs=new Set(arr.map(a=>a.h));const ps=sortPosts((D.posts||[]).filter(p=>hs.has(p.a)),GS.key,G.desc).slice(0,12);
+  return '<div class="sec t-'+cols[i%8]+'"><h2>'+esc(g)+' <small>'+arr.length+'개 계정 · 팔로워 합 '+fmtN(arr.reduce((s,x)=>s+(x.followers||0),0))+' · 게시물 상위 '+ps.length+'</small></h2>'+gallery(ps,GS.cols)+'<details class="blk"><summary>👤 계정 '+arr.length+'개 보기</summary><div class="grid g4" style="padding:5px">'+arr.sort((x,y)=>(y.followers||0)-(x.followers||0)).map(accCard).join('')+'</div></details></div>'}).join('');
+  $$('.ac-card').forEach(e=>e.onclick=()=>location.hash='acc:'+encodeURIComponent(e.dataset.h))};
+ $('#gc').oninput=e=>{GS.cols=+e.target.value;$('#gcn').textContent=GS.cols;$$('.gg').forEach(x=>x.style.gridTemplateColumns='repeat('+GS.cols+',minmax(0,1fr))')};
+ $('#gk').onchange=e=>{GS.key=e.target.value;r()};$('#gd').onclick=()=>{G.desc=!G.desc;r()};bindCap();r()};
+/* ---- 계정 상세 ---- */
+let MS='ev';
+async function openAcc(h){const a=D.accBy[h];if(!a)return;if(!(window.ACC_MD&&ACC_MD[h]))await loadScript('data/acc/'+encodeURIComponent(h)+'.js?v=2');
+ const s=a.stats||{};const kv=(k,v)=>'<div class="kpi t-navy"><div class="v" style="font-size:16px">'+v+'</div><div class="k">'+k+'</div></div>';
+ let html='<button class="x" onclick="backAcc()">✕ 닫기</button><div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><img src="'+(a.pf||'')+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover"><div><div style="font-size:17px;font-weight:900">@'+esc(h)+' <span class="muted" style="font-size:13px">'+esc(a.name||'')+'</span> <a href="https://www.instagram.com/'+esc(h)+'/" target="_blank">인스타 열기↗</a></div>'+
+ '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat))+'</span><span class="chip">'+(REG[a.region]||'')+'</span><span class="chip c-orange">'+esc(a.field)+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div><div class="small" style="white-space:pre-wrap;color:#c8d1e4">'+esc(a.bio||'')+'</div>'+(a.note?'<div class="warn">⚠ '+esc(a.note)+'</div>':'')+'</div></div>';
+ html+='<div class="grid g6" style="margin-bottom:6px">'+kv('팔로워 (ego 실측)',fmtN(a.followers))+kv('게시물 수',fmtN(a.postsN))+kv('최근 '+(s.n||0)+'개 평균 좋아요',s.avgL==null?'~'+fmtN(Math.round((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)))+' (추정)':fmtN(Math.round(s.avgL)))+kv('평균 좋아요/팔로워',s.er==null?(a.followers?'~'+pct((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)/a.followers):'-'):pct(s.er))+kv('평균 댓글',s.avgC==null?'-':fmtN(Math.round(s.avgC)))+kv('슬라이드/영상/단일',(s.mix||'-'))+'</div>';
+ html+='<div class="grid g2"><div class="sec t-mint"><h2>🧠 공통기억 분석 <small>accounts/ 원문 · 수치 검증 안 됨</small></h2><div><b>주제:</b> '+hl(a.topic||'')+'</div>'+(a.mem?.point?.length?'<div><b>벤치마킹 포인트:</b> '+a.mem.point.map(hl).join(' / ')+'</div>':'')+(a.mem?.nums?.length?'<div class="note">기록 수치: '+a.mem.nums.map(hl).join(' / ')+'</div>':'')+'</div>'+
+ '<div class="sec t-blue"><h2>🔎 최근 게시물 분석 <small>ego 수집 '+esc(a.fetched||'')+' 기준 자동 요약</small></h2>'+(a.ai?'<div class="sum">'+hl(a.ai)+'</div>':'')+(a.kw?.length?'<div>'+a.kw.map(w=>'<span class="chip c-purple">'+esc(w)+'</span>').join('')+'</div>':'')+(s.cad?'<div class="note">업로드 간격 중앙값 약 <b class="n">'+s.cad+'일</b> · 최근 게시 '+esc(sd(s.last||''))+'</div>':'')+'</div></div>';
+ html+='<div class="sec t-navy"><h2>🖼 최근 게시물 상위 12 <small>사진 클릭 → 미리보기(◀▶)</small> <select id="ms">'+sortOpts()+'</select> <button id="mcap" class="'+(document.body.classList.contains('showcap')?'on':'')+'">제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')+'</button></h2><div id="mg"></div><div class="note">'+EST_NOTE+'</div></div>';
+ html+='<details class="blk" open><summary>📄 공통기억 원문 분석 (accounts/'+esc((a.mem?.files||[]).join(', '))+')</summary><div class="md" style="padding:6px 9px">'+md((window.ACC_MD||{})[h]||'(원문 없음)')+'</div></details>';
+ modal(html);const draw=()=>{$('#mg').innerHTML=gallery(sortPosts(byAcc[h]||[],MS,true).slice(0,12),6)};$('#ms').value=MS;$('#ms').onchange=e=>{MS=e.target.value;draw()};$('#mcap').onclick=()=>{document.body.classList.toggle('showcap');$('#mcap').classList.toggle('on');$('#mcap').textContent='제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')};draw()}
+/* ---- 주간 7슬롯 (색·강조) ---- */
+VIEWS.hm_week=()=>{const H=D.hm;const days=['월','화','수','목','금','토','일'],dc=['#6aa8ff','#5fe08a','#ffd84d','#ffa04d','#ff6f9e','#b892ff','#3ee6c4'],sc=['blue','orange','mint','purple','green','wine','yellow'];
+ const KW=['보안','사칭','부모님','고배당','월배당','총수익률','ETF','고정비','투표','무료','체크','카드','비교','30초','60초','1분','실사례','가이드','점검'];
+ const kwHL=t=>{let h=esc(t);let i=0;KW.forEach(k=>{h=tagSafe(h,x=>x.split(k).join('<mark class="k'+(KW.indexOf(k)%4)+'">'+k+'</mark>'))});return tagSafe(h,x=>x.replace(NUMRE,'<b class="n">$1</b>')).replace(/(&quot;[^&]{2,60}?&quot;)/g,'<span class="q">$1</span>')};
+ let h='<div class="sec t-orange"><h2>📅 주간 7슬롯 기획판 <small>하루 7개 = 핵심 주제 1~2개의 매체별 변환 · 샘플은 공통기억 주제 예시</small></h2><div class="cmd copyhost"><span class="w">다음 주 7개 기획</span><code>'+esc(H.weekCmd)+'</code>'+copyBtn(H.weekCmd)+'</div></div>';
+ h+='<div class="sec t-navy" style="overflow:auto"><table class="t wk"><tr><th>슬롯</th><th>역할</th>'+days.map((d,i)=>'<th style="color:'+dc[i]+';border-bottom:2px solid '+dc[i]+'">'+d+'요일</th>').join('')+'</tr>'+H.slots.map((s,i)=>'<tr><td class="nowrap"><span class="chip c-'+sc[i]+'">'+['🗂','🎬','🐯','💬','📱','🧵','📺'][i]+' '+esc(s[0])+'</span></td><td class="small" style="color:#ffd84d">'+esc(s[1])+'</td>'+days.map((d,j)=>'<td class="small" style="background:'+dc[j]+'12">'+kwHL((H.sample[j]||{})[i]||'')+'</td>').join('')+'</tr>').join('')+'</table></div>';
+ $('#view').innerHTML=h};
+/* ---- 메뉴/레이아웃 ---- */
+(function(){const NM=[['💰 혜민 투자 인스타','#ffa04d',[['hm','전략 대시보드 (분석)'],['hm_week','📅 주간 7슬롯 기획판']]],
+ ['🏠 대시보드','#ffd84d',[['home','한눈에 보기 · 명령어'],['prompts','📋 프롬프트 전체 복사']]],
+ ['🖼 게시물 보드','#3ee6c4',[['b_all','전체'],['b_toon','툰'],['b_card','카드뉴스'],['b_one','한장형'],['b_ai','🤖 AI·창업'],['b_reel','릴스·기타 계정']]],
+ ['👤 계정 분석','#6aa8ff',[['accs','계정 카드 (전체)'],['cmp_toon','📊 툰 비교'],['cmp_card','📊 카드뉴스·한장형 비교'],['grp_theme','🗂 주제별 묶음'],['grp_target','🎯 타깃별 묶음']]],
+ MENU.find(m=>m[0].startsWith('📚'))];
+ MENU.length=0;NM.forEach(m=>MENU.push(m));Object.keys(ITEMS).forEach(k=>delete ITEMS[k]);MENU.forEach(([g,c,a])=>a.forEach(([k,n])=>ITEMS[k]={n,g,c}));
+ buildSide();
+ if(innerWidth<760)document.body.classList.add('sidehide');
+ $('#mb').onclick=()=>document.body.classList.toggle('sidehide');
+ window.curV=null;route()})();
