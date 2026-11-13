@@ -102,9 +102,9 @@ VIEWS.accs=()=>{const A=D.acc||[];
 function aVal(a,k){if(k==='er')return a.stats?.er??-1;if(k==='avgL')return a.stats?.avgL??-1;if(k==='h')return a.h;return a[k]??-1}
 function accCard(a){const th=(a.top||[]).slice(0,3).map(sc=>{const p=D.postBy[a.h+'/'+sc];return p?'<img loading="lazy" src="'+p.img+'">':''}).join('');
  return '<div class="ac-card t-'+(CATC[a.cat]||'wine')+'" data-h="'+esc(a.h)+'"><img class="pf" loading="lazy" src="'+(a.pf||'')+'" onerror="this.style.visibility=\'hidden\'"><div style="min-width:0;flex:1"><div class="nm">@'+esc(a.h)+' <span class="muted small">'+esc(a.name||'')+'</span></div>'+
- '<div class="st">팔로워 <b>'+fmtN(a.followers)+'</b> · 게시물 '+fmtN(a.postsN)+(a.stats&&a.stats.avgL!=null?' · 평균♥ <b>'+fmtN(Math.round(a.stats.avgL))+'</b> · <span title="평균 좋아요/팔로워">'+pct(a.stats.er)+'</span>':'')+'</div>'+
+ '<div class="st"><span class="fol">팔로워 <b>'+fmtN(a.followers)+'</b></span> · 게시물 '+fmtN(a.postsN)+(a.stats&&a.stats.avgL!=null?' · 평균♥ <b>'+fmtN(Math.round(a.stats.avgL))+'</b> · <span title="평균 좋아요/팔로워">'+pct(a.stats.er)+'</span>':'')+'</div>'+
  '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat))+'</span><span class="chip">'+(REG[a.region]||'')+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div>'+
- '<div class="pt">'+esc(a.topic||'')+'</div>'+(a.note?'<div class="note">⚠ '+esc(a.note)+'</div>':'')+'<div class="ths">'+th+'</div></div></div>'}
+ '<div class="pt tp">'+esc(a.topic||'')+'</div>'+(a.note?'<div class="note">⚠ '+esc(a.note)+'</div>':'')+'<div class="ths">'+th+'</div></div></div>'}
 function renderAccs(){let A=(D.acc||[]).filter(a=>(!$('#af').value||a.cat===$('#af').value)&&(!$('#at').value||a.themeG===$('#at').value)&&(!$('#ag').value||(a.targets||[]).includes($('#ag').value))&&(!$('#ar').value||a.region===$('#ar').value));
  const q=$('#aq').value.trim().toLowerCase();if(q)A=A.filter(a=>(a.h+' '+a.name+' '+a.topic+' '+(a.bio||'')).toLowerCase().includes(q));
  const k=$('#as').value;A.sort((x,y)=>{const a=aVal(x,k),b=aVal(y,k);return k==='h'?(a<b?-1:1):(b>a?1:b<a?-1:0)});
@@ -207,7 +207,6 @@ D.postBy={};(D.posts||[]).forEach(p=>D.postBy[p.a+'/'+p.sc]=p);
 buildSide();window.addEventListener('hashchange',route);
 $('#mb').onclick=()=>document.body.classList.toggle(innerWidth<700?'open':'unpin');
 $('#mod').onclick=e=>{if(e.target.id==='mod')backAcc()};
-route();
 
 /* =================== v2 =================== */
 const SHORT={'인스타툰':'툰'};function catL(c){return SHORT[c]||c}
@@ -231,10 +230,10 @@ const SORTS={ev:'조회수(추정)',el:'좋아요',c:'댓글',es:'공유(추정)
 function pv(p,k){const a=D.accBy[p.a]||{};if(k==='er')return a.followers?p.el/a.followers:-1;if(k==='f')return a.followers||0;if(k==='d')return p.d||'';return p[k]==null?-1:p[k]}
 function sortPosts(arr,k,desc){return [...arr].sort((x,y)=>{const A=pv(x,k),B=pv(y,k);const c=A<B?-1:A>B?1:0;return desc?-c:c})}
 function mline(p){const f=(v,e)=>v==null?'-':(e?'~':'')+fmtN(Math.round(v));
- return '<span class="vw" title="조회수'+(p.eV?' (추정)':' (실측)')+'">▶'+f(p.ev,p.eV)+'</span><span class="lk" title="좋아요'+(p.eL?' (숨김→추정)':'')+'">♥'+f(p.el,p.eL)+'</span><span class="cm" title="댓글">💬'+(p.c==null?'-':fmtN(p.c))+'</span><span class="sh" title="공유 (추정)">↗'+f(p.es,true)+'</span>'}
+ return '<span class="mv mv-ev" title="조회수'+(p.eV?' (추정)':' (실측)')+'">▶'+f(p.ev,p.eV)+'</span><span class="mv mv-el" title="좋아요'+(p.eL?' (숨김→추정)':'')+'">♥'+f(p.el,p.eL)+'</span><span class="mv mv-c" title="댓글">💬'+(p.c==null?'-':fmtN(p.c))+'</span><span class="mv mv-es" title="공유 (추정)">↗'+f(p.es,true)+'</span>'}
 const LISTS={};let LC=0;function reg(arr){const id='l'+(++LC);LISTS[id]=arr;return id}
-function postCard(p,i,lid){const cap=(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'');
- return '<div class="pc"><span class="tag">'+(i+1)+'</span><span class="fmt">'+(p.t==='vid'?'🎬':p.t==='car'?'🗂':'🖼')+(p.pin?'📌':'')+'</span><div class="th" data-lid="'+lid+'" data-i="'+i+'" title="클릭: 미리보기"><img loading="lazy" src="'+p.img+'" alt=""></div><div class="b"><div class="m">'+mline(p)+'</div><div class="r1 muted small"><span class="dt">'+sd(p.d)+'</span><span class="idn"> · <span class="ac" data-a="'+esc(p.a)+'">@'+esc(p.a)+'</span></span><span class="tg" title="제목·설명 펼치기/접기">글▾</span></div><div class="cap">'+cap+(p.orig?'<details class="orig"><summary>원문 ('+esc(p.lang)+')</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}
+function postCard(p,i,lid){const a=D.accBy[p.a]||{};const cap=(p.orig?'<span class="pill">🇰🇷 번역</span> ':'')+esc(p.cap||'');
+ return '<div class="pc"><span class="tag">'+(i+1)+'</span><span class="fmt">'+(p.t==='vid'?'🎬':p.t==='car'?'🗂':'🖼')+(p.pin?'📌':'')+'</span><div class="th" data-lid="'+lid+'" data-i="'+i+'" title="클릭: 미리보기"><img loading="lazy" src="'+p.img+'" alt=""></div><div class="b"><div class="m">'+mline(p)+'</div><div class="r1 muted small"><span class="dt">'+sd(p.d)+'</span> <span class="idn"><span class="ac" data-a="'+esc(p.a)+'">@'+esc(p.a)+'</span></span> <span class="fol">👥'+fmtN(a.followers)+'</span> <span class="tg" title="제목·설명 펼치기/접기">글▾</span></div><div class="cap">'+cap+(p.orig?'<details class="orig"><summary>원문 ('+esc(p.lang)+')</summary><div>'+esc(p.orig)+'</div></details>':'')+'</div></div></div>'}
 function gallery(arr,cols,extra){const id=reg(arr);return '<div class="gg" style="grid-template-columns:repeat('+cols+',minmax(0,1fr))">'+arr.map((p,i)=>postCard(p,i,id)).join('')+'</div>'}
 /* ---- 미리보기(라이트박스) ---- */
 const LB={list:[],i:0};
@@ -269,11 +268,11 @@ function convCard(c,col,open){const f=c.fields||{};
  (f.원문?'<div class="note">원문: '+esc(f.원문.join(' '))+'</div>':'')+(c.extra?'<details class="blk"><summary>기타 원문</summary><div class="md" style="padding:6px">'+md(c.extra)+'</div></details>':'')+'</div></div>'}
 /* ---- 게시물 보드 ---- */
 G.key='ev';G.desc=true;G.cols=+LS.cols2||6;
-function capBtns(){return '<button id="gcap" class="'+(document.body.classList.contains('showcap')?'on':'')+'">제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')+'</button><button id="gid" class="'+(document.body.classList.contains('noid')?'on':'')+'">ID '+(document.body.classList.contains('noid')?'숨김':'표시')+'</button>'}
-function bindCap(rerender){$('#gcap').onclick=()=>{document.body.classList.toggle('showcap');$('#gcap').classList.toggle('on');$('#gcap').textContent='제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')};$('#gid').onclick=()=>{document.body.classList.toggle('noid');$('#gid').classList.toggle('on');$('#gid').textContent='ID '+(document.body.classList.contains('noid')?'숨김':'표시')}}
+function capBtns(){return '<button id="gset">👁 표시 ▾</button>'}
+function bindCap(){ensureSet()}
 const sortOpts=()=>Object.entries(SORTS).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
 let BP=null;
-VIEWS.b=(k)=>{const pre={b_all:null,b_toon:['인스타툰'],b_card:['카드뉴스'],b_one:['한장형'],b_reel:['릴스','기타'],b_ai:['인스타툰','카드뉴스','한장형']}[k];BP={pre,fld:k==='b_ai'?'AI·창업':''};
+VIEWS.b=(k)=>{const pre={b_all:null,b_toon:['인스타툰'],b_card:['카드뉴스'],b_one:['한장형'],b_reel:['릴스','기타'],b_ai:['인스타툰','카드뉴스','한장형']}[k];BP={pre,fld:k==='b_ai'?'AI·창업':'',lab:{b_all:'전체 게시물',b_toon:'툰',b_card:'카드뉴스',b_one:'한장형',b_ai:'AI·창업 계정',b_reel:'릴스·기타'}[k]};
  const pool=(D.acc||[]).filter(a=>(!pre||pre.includes(a.cat))&&(!BP.fld||a.field===BP.fld)&&(byAcc[a.h]||[]).length);
  const themes=[...new Set(pool.map(a=>a.themeG).filter(Boolean))].sort(),targets=[...new Set(pool.flatMap(a=>a.targets||[]))].sort();
  tools('<span class="lab">열</span><input type="range" id="gc" min="3" max="14" value="'+G.cols+'"><b id="gcn">'+G.cols+'</b><span class="lab">정렬</span><select id="gk">'+sortOpts()+'</select><button id="gd">내림 ▼</button>'+
@@ -287,11 +286,11 @@ VIEWS.b=(k)=>{const pre={b_all:null,b_toon:['인스타툰'],b_card:['카드뉴�
  $('#gc').oninput=e=>{G.cols=+e.target.value;LS.cols2=G.cols;$('#gcn').textContent=G.cols;$('#gal .gg').style.gridTemplateColumns='repeat('+G.cols+',minmax(0,1fr))'};
  $('#gk').onchange=e=>{G.key=e.target.value;renderBoard()};$('#gd').onclick=()=>{G.desc=!G.desc;renderBoard()};
  ['#gf','#gfd','#gt','#gg','#gr','#gy','#ga'].forEach(s=>$(s)&&($(s).onchange=renderBoard));$('#gq').oninput=renderBoard;bindCap();
- $('#view').innerHTML='<div class="note" style="margin:0 0 4px">'+EST_NOTE+'</div><div id="gal"></div>';renderBoard()};
+ $('#view').innerHTML='<div class="note" style="margin:0 0 4px">'+EST_NOTE+'</div><div id="bhead" class="bhead"></div><div id="gal"></div>';renderBoard()};
 function renderBoard(){const {pre,fld}=BP;const f=$('#gf')?.value,fd=$('#gfd')?.value||fld,t=$('#gt').value,g=$('#gg').value,r=$('#gr').value,y=$('#gy').value,ac=$('#ga').value,q=$('#gq').value.trim().toLowerCase();
  let arr=(D.posts||[]).filter(p=>{const a=D.accBy[p.a]||{};if(pre&&!pre.includes(a.cat))return false;if(f&&a.cat!==f)return false;if(fd&&a.field!==fd)return false;if(t&&a.themeG!==t)return false;if(g&&!(a.targets||[]).includes(g))return false;if(r&&a.region!==r)return false;if(y&&p.t!==y)return false;if(ac&&p.a!==ac)return false;
   if(q&&!((p.a+' '+(a.name||'')+' '+(p.cap||'')+' '+(p.orig||'')).toLowerCase().includes(q)))return false;return true});
- arr=sortPosts(arr,G.key,G.desc).slice(0,1500);$('#gd').textContent=G.desc?'내림 ▼':'오름 ▲';$('#gcnt').textContent=arr.length+'개';
+ arr=sortPosts(arr,G.key,G.desc).slice(0,1500);$('#gd').textContent=G.desc?'내림 ▼':'오름 ▲';$('#gcnt').textContent=arr.length+'개';$('#bhead').innerHTML='<b style="font-size:14px;color:#fff">'+esc(BP.lab||'')+'</b> <span class="muted small">'+arr.length+'개 게시물</span> '+hdrSum(arr);
  $('#gal').innerHTML=gallery(arr,G.cols)}
 /* ---- 묶음 ---- */
 let GS={cols:6,key:'ev'};
@@ -300,7 +299,7 @@ VIEWS.grp=(k)=>{const by=k==='grp_theme'?'themeG':'target';const A=(D.acc||[]).f
  tools('<span class="lab">열</span><input type="range" id="gc" min="3" max="12" value="'+GS.cols+'"><b id="gcn">'+GS.cols+'</b><span class="lab">정렬</span><select id="gk">'+sortOpts()+'</select><button id="gd">내림 ▼</button>'+capBtns()+'<span class="lab">그룹마다 상위 12개 · 툰·카드뉴스·한장형</span>');
  $('#gk').value=GS.key;const cols=['mint','blue','purple','orange','green','wine','yellow','navy'];
  const r=()=>{$('#gd').textContent=G.desc?'내림 ▼':'오름 ▲';$('#view').innerHTML='<div class="note">'+EST_NOTE+'</div>'+Object.entries(groups).sort((a,b)=>b[1].length-a[1].length).map(([g,arr],i)=>{const hs=new Set(arr.map(a=>a.h));const ps=sortPosts((D.posts||[]).filter(p=>hs.has(p.a)),GS.key,G.desc).slice(0,12);
-  return '<div class="sec t-'+cols[i%8]+'"><h2>'+esc(g)+' <small>'+arr.length+'개 계정 · 팔로워 합 '+fmtN(arr.reduce((s,x)=>s+(x.followers||0),0))+' · 게시물 상위 '+ps.length+'</small></h2>'+gallery(ps,GS.cols)+'<details class="blk"><summary>👤 계정 '+arr.length+'개 보기</summary><div class="grid g4" style="padding:5px">'+arr.sort((x,y)=>(y.followers||0)-(x.followers||0)).map(accCard).join('')+'</div></details></div>'}).join('');
+  return '<div class="sec t-'+cols[i%8]+'"><h2>'+esc(g)+' <small>'+arr.length+'개 계정 · 팔로워 합 '+fmtN(arr.reduce((s,x)=>s+(x.followers||0),0))+' · 게시물 상위 '+ps.length+'</small> '+hdrSum(ps)+'</h2>'+gallery(ps,GS.cols)+'<details class="blk"><summary>👤 계정 '+arr.length+'개 보기</summary><div class="grid g4" style="padding:5px">'+arr.sort((x,y)=>(y.followers||0)-(x.followers||0)).map(accCard).join('')+'</div></details></div>'}).join('');
   $$('.ac-card').forEach(e=>e.onclick=()=>location.hash='acc:'+encodeURIComponent(e.dataset.h))};
  $('#gc').oninput=e=>{GS.cols=+e.target.value;$('#gcn').textContent=GS.cols;$$('.gg').forEach(x=>x.style.gridTemplateColumns='repeat('+GS.cols+',minmax(0,1fr))')};
  $('#gk').onchange=e=>{GS.key=e.target.value;r()};$('#gd').onclick=()=>{G.desc=!G.desc;r()};bindCap();r()};
@@ -310,10 +309,10 @@ async function openAcc(h){const a=D.accBy[h];if(!a)return;if(!(window.ACC_MD&&AC
  const s=a.stats||{};const kv=(k,v)=>'<div class="kpi t-navy"><div class="v" style="font-size:16px">'+v+'</div><div class="k">'+k+'</div></div>';
  let html='<button class="x" onclick="backAcc()">✕ 닫기</button><div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><img src="'+(a.pf||'')+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover"><div><div style="font-size:17px;font-weight:900">@'+esc(h)+' <span class="muted" style="font-size:13px">'+esc(a.name||'')+'</span> <a href="https://www.instagram.com/'+esc(h)+'/" target="_blank">인스타 열기↗</a></div>'+
  '<div><span class="chip c-'+(CATC[a.cat]||'wine')+'">'+esc(catL(a.cat))+'</span><span class="chip">'+(REG[a.region]||'')+'</span><span class="chip c-orange">'+esc(a.field)+'</span>'+(a.themeG?'<span class="chip c-yellow">'+esc(a.themeG)+'</span>':'')+(a.targets||[]).map(t=>'<span class="chip c-green">'+esc(t)+'</span>').join('')+'</div><div class="small" style="white-space:pre-wrap;color:#c8d1e4">'+esc(a.bio||'')+'</div>'+(a.note?'<div class="warn">⚠ '+esc(a.note)+'</div>':'')+'</div></div>';
- html+='<div class="grid g6" style="margin-bottom:6px">'+kv('팔로워 (ego 실측)',fmtN(a.followers))+kv('게시물 수',fmtN(a.postsN))+kv('최근 '+(s.n||0)+'개 평균 좋아요',s.avgL==null?'~'+fmtN(Math.round((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)))+' (추정)':fmtN(Math.round(s.avgL)))+kv('평균 좋아요/팔로워',s.er==null?(a.followers?'~'+pct((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)/a.followers):'-'):pct(s.er))+kv('평균 댓글',s.avgC==null?'-':fmtN(Math.round(s.avgC)))+kv('슬라이드/영상/단일',(s.mix||'-'))+'</div>';
+ html+='<div class="grid g6" style="margin-bottom:6px">'+kv('<span class="fol">팔로워 (ego 실측)</span>','<span class="fol">'+fmtN(a.followers)+'</span>')+kv('게시물 수',fmtN(a.postsN))+kv('최근 '+(s.n||0)+'개 평균 좋아요',s.avgL==null?'~'+fmtN(Math.round((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)))+' (추정)':fmtN(Math.round(s.avgL)))+kv('평균 좋아요/팔로워',s.er==null?(a.followers?'~'+pct((byAcc[h]||[]).reduce((t,p)=>t+p.el,0)/Math.max(1,(byAcc[h]||[]).length)/a.followers):'-'):pct(s.er))+kv('평균 댓글',s.avgC==null?'-':fmtN(Math.round(s.avgC)))+kv('슬라이드/영상/단일',(s.mix||'-'))+'</div>';
  html+='<div class="grid g2"><div class="sec t-mint"><h2>🧠 공통기억 분석 <small>accounts/ 원문 · 수치 검증 안 됨</small></h2><div><b>주제:</b> '+hl(a.topic||'')+'</div>'+(a.mem?.point?.length?'<div><b>벤치마킹 포인트:</b> '+a.mem.point.map(hl).join(' / ')+'</div>':'')+(a.mem?.nums?.length?'<div class="note">기록 수치: '+a.mem.nums.map(hl).join(' / ')+'</div>':'')+'</div>'+
  '<div class="sec t-blue"><h2>🔎 최근 게시물 분석 <small>ego 수집 '+esc(a.fetched||'')+' 기준 자동 요약</small></h2>'+(a.ai?'<div class="sum">'+hl(a.ai)+'</div>':'')+(a.kw?.length?'<div>'+a.kw.map(w=>'<span class="chip c-purple">'+esc(w)+'</span>').join('')+'</div>':'')+(s.cad?'<div class="note">업로드 간격 중앙값 약 <b class="n">'+s.cad+'일</b> · 최근 게시 '+esc(sd(s.last||''))+'</div>':'')+'</div></div>';
- html+='<div class="sec t-navy"><h2>🖼 최근 게시물 상위 12 <small>사진 클릭 → 미리보기(◀▶)</small> <select id="ms">'+sortOpts()+'</select> <button id="mcap" class="'+(document.body.classList.contains('showcap')?'on':'')+'">제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')+'</button></h2><div id="mg"></div><div class="note">'+EST_NOTE+'</div></div>';
+ html+='<div class="sec t-navy"><h2>🖼 최근 게시물 상위 12 <small>사진 클릭 → 미리보기(◀▶)</small> '+hdrSum(sortPosts(byAcc[h]||[],'el',true).slice(0,12))+' <select id="ms">'+sortOpts()+'</select> <button id="mcap" class="'+(document.body.classList.contains('showcap')?'on':'')+'">제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')+'</button></h2><div id="mg"></div><div class="note">'+EST_NOTE+'</div></div>';
  html+='<details class="blk" open><summary>📄 공통기억 원문 분석 (accounts/'+esc((a.mem?.files||[]).join(', '))+')</summary><div class="md" style="padding:6px 9px">'+md((window.ACC_MD||{})[h]||'(원문 없음)')+'</div></details>';
  modal(html);const draw=()=>{$('#mg').innerHTML=gallery(sortPosts(byAcc[h]||[],MS,true).slice(0,12),6)};$('#ms').value=MS;$('#ms').onchange=e=>{MS=e.target.value;draw()};$('#mcap').onclick=()=>{document.body.classList.toggle('showcap');$('#mcap').classList.toggle('on');$('#mcap').textContent='제목·설명 '+(document.body.classList.contains('showcap')?'▾':'▸')};draw()}
 /* ---- 주간 7슬롯 (색·강조) ---- */
@@ -333,4 +332,28 @@ VIEWS.hm_week=()=>{const H=D.hm;const days=['월','화','수','목','금','토',
  buildSide();
  if(innerWidth<760)document.body.classList.add('sidehide');
  $('#mb').onclick=()=>document.body.classList.toggle('sidehide');
- window.curV=null;route()})();
+ })();
+
+/* ===== v3: 섹션 요약 · 표시 설정 ===== */
+function hdrSum(ps){if(!ps||!ps.length)return '';
+ const nn=a=>a.filter(x=>x!=null&&isFinite(x));const av=a=>{a=nn(a);return a.length?a.reduce((s,x)=>s+x,0)/a.length:null};const mx=a=>{a=nn(a);return a.length?Math.max(...a):null};
+ const L=ps.map(p=>p.el),V=ps.map(p=>p.ev),C=ps.map(p=>p.c),S=ps.map(p=>p.es);
+ const seg=(cls,label,val,est)=>val==null?'':'<span class="mv '+cls+'">'+label+(est?'~':'')+fmtN(Math.round(val))+'</span>';
+ const lE=ps.some(p=>p.eL);
+ return '<span class="bsum">('+[seg('mv-el','평균 ♥',av(L),lE),seg('mv-el','최고 ♥',mx(L),lE),seg('mv-ev','평균 ▶',av(V),1),seg('mv-ev','최고 ▶',mx(V),1),seg('mv-c','평균 💬',av(C),0),seg('mv-es','평균 ↗',av(S),1)].filter(Boolean).join(' · ')+')</span>'}
+const SKEY='gs_show3';const SDEF={cap:false,id:true,dt:true,fol:true,tp:true,ev:true,el:true,c:true,es:true};
+let SET=Object.assign({},SDEF);try{Object.assign(SET,JSON.parse(localStorage[SKEY]||'{}'))}catch(e){}
+const SLAB=[['cap','제목·설명 (글)'],['id','계정 ID'],['dt','날짜'],['fol','팔로워'],['tp','계정 소개(주제)'],['ev','조회수(추정)'],['el','좋아요'],['c','댓글'],['es','공유(추정)']];
+function applySet(){const b=document.body.classList;b.toggle('showcap',!!SET.cap);b.toggle('noid',!SET.id);b.toggle('nodt',!SET.dt);b.toggle('nofol',!SET.fol);b.toggle('notp',!SET.tp);['ev','el','c','es'].forEach(k=>b.toggle('nomv-'+k,!SET[k]));
+ try{localStorage[SKEY]=JSON.stringify(SET)}catch(e){}
+ const p=$('#spanel');if(p)p.querySelectorAll('input[data-k]').forEach(i=>i.checked=!!SET[i.dataset.k])}
+function ensureSet(){if(!$('#spanel')){const p=document.createElement('div');p.id='spanel';p.innerHTML='<div class="sp-h">👁 표시 항목 <span class="muted small">끄면 숨김 · 자동 저장</span></div>'+SLAB.map(([k,l])=>'<label><input type="checkbox" data-k="'+k+'"> '+l+'</label>').join('')+'<div class="sp-f"><button id="sp-all">전부 켜기</button><button id="sp-def">기본값</button></div>';document.body.appendChild(p)}applySet()}
+document.addEventListener('change',e=>{const i=e.target.closest&&e.target.closest('#spanel input[data-k]');if(i){SET[i.dataset.k]=i.checked;applySet()}});
+document.addEventListener('click',e=>{
+ if(e.target.closest('#gset')){ensureSet();$('#spanel').classList.toggle('on');return}
+ if(e.target.id==='sp-all'){Object.keys(SDEF).forEach(k=>SET[k]=true);applySet();return}
+ if(e.target.id==='sp-def'){Object.assign(SET,SDEF);applySet();return}
+ if($('#spanel')&&!e.target.closest('#spanel'))$('#spanel').classList.remove('on')},true);
+ensureSet();
+/* 시작: 설정(SET) 초기화 뒤에 라우팅 */
+window.curV=null;route();
