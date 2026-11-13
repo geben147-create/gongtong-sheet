@@ -143,3 +143,9 @@ body.nodt .dt{display:none}body.nofol .fol{display:none}body.notp .tp{display:no
 body.nomv-ev .mv-ev,body.nomv-el .mv-el,body.nomv-c .mv-c,body.nomv-es .mv-es{display:none}
 .bhead{margin:2px 0 6px;padding:4px 2px;border-bottom:1px solid #ffffff14}.bsum{color:#ffe14d;font-weight:700;font-size:12px}
 .sec h2 .bsum{font-size:11.5px}
+
+/* ===== v4: 계정 상세 섹션 숨김 ===== */
+.sxbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#05070b;border:1px solid #1d2638;border-radius:8px;padding:4px 8px;margin:0 0 6px;font-size:12px}
+.sxbar label{cursor:pointer}
+body.nosx-kpi .sx-kpi,body.nosx-mem .sx-mem,body.nosx-ai .sx-ai,body.nosx-grid .sx-grid,body.nosx-raw .sx-raw{display:none}
+body.nofol .kpi:has(.fol){display:none}
